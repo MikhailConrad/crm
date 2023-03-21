@@ -43,6 +43,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(incorrectDataResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NotValidRefreshTokenException.class)
+    public ResponseEntity<IncorrectDataResponse> notValidRefreshToken(NotValidRefreshTokenException exception) {
+        IncorrectDataResponse incorrectDataResponse = new IncorrectDataResponse(exception.getMessage());
+        return new ResponseEntity<>(incorrectDataResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler
     public ResponseEntity<Exception> otherException(Exception exception) {
         return new ResponseEntity<>(exception, HttpStatus.valueOf(500));

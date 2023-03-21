@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import ru.sevavto.stock.crm.exception.NotFoundException;
+import ru.sevavto.stock.crm.exception.NotValidRefreshTokenException;
 import ru.sevavto.stock.crm.model.dto.security.AuthenticationRequest;
 import ru.sevavto.stock.crm.model.dto.security.AuthenticationResponse;
 import ru.sevavto.stock.crm.model.dto.security.TokenRefreshRequest;
@@ -49,15 +50,16 @@ public class AuthenticationService {
         String refreshTokenAtRequest = request.getRefreshToken();
         String refreshTokenAtDb = stringRedisTemplate.opsForValue().get(username);
         CrmUser crmUser = crmUserRepository.findByEmail(username)
-                .orElseThrow(() -> new NotFoundException("2"));
-        if(refreshTokenAtDb.equals(refreshTokenAtRequest)
+                .orElseThrow(() -> new NotFoundException("Пользователь с таким логином не найден в БД"));
+        if(refreshTokenAtDb != null
+                && refreshTokenAtDb.equals(refreshTokenAtRequest)
                 && jwtUtils.isRefreshTokenValid(refreshTokenAtRequest, crmUser)) {
             String accessToken = jwtUtils.generateAccessToken(crmUser);
             String refreshToken = jwtUtils.generateRefreshToken(crmUser);
             stringRedisTemplate.opsForValue().set(username, refreshToken);
             return new AuthenticationResponse(accessToken, refreshToken);
         } else {
-            throw new RuntimeException("Not valid Token"); //todo добавить нормальный эксепшн
+            throw new NotValidRefreshTokenException("Передан невалидный refresh токен");
         }
     }
 }
