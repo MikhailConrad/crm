@@ -13,7 +13,7 @@ public class OrderToDtoMapper {
                 .organization(order.getOrganizationManager().getOrganization().getName())
                 .organizationManager(OrganizationManagerToDtoMapper.mapToDto(order.getOrganizationManager()))
                 .positions(order.getPositions().stream()
-                                .map(position -> OrderPositionToDtoMapper.mapToDto(position))
+                                .map(OrderPositionToDtoMapper::mapToDto)
                                 .collect(Collectors.toList()))
                 .totalPrice(order.getTotalPrice())
                 .dateOfOrder(order.getDateOfOrder().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
